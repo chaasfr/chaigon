@@ -2,16 +2,21 @@ import os
 from dotenv import load_dotenv
 from google import genai
 import sys
-
+from google.genai import types
 
 def handle_prompt(prompt):
     
     api_key= os.environ.get("GEMINI_API_KEY")
     client = genai.Client(api_key=api_key)
 
+    messages = [
+        types.Content(role="user",parts=[types.Part(text=prompt)])
+    ]
+
     resp = client.models.generate_content(
         model="gemini-2.0-flash-001",
-        contents=prompt)
+        contents=messages)
+    
     print(resp.text)
     print(f"""
 Prompt tokens: {resp.usage_metadata.prompt_token_count}
