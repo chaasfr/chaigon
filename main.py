@@ -4,8 +4,9 @@ from google import genai
 import sys
 from google.genai import types
 
-def handle_prompt(prompt):
-    
+VERBOSE_CMD = "--verbose"
+
+def get_resp(prompt):  
     api_key= os.environ.get("GEMINI_API_KEY")
     client = genai.Client(api_key=api_key)
 
@@ -17,20 +18,33 @@ def handle_prompt(prompt):
         model="gemini-2.0-flash-001",
         contents=messages)
     
-    print(resp.text)
+    return resp
+
+def print_verbose(prompt, resp):
     print(f"""
+User prompt: {prompt}
 Prompt tokens: {resp.usage_metadata.prompt_token_count}
 Response tokens: {resp.usage_metadata.candidates_token_count}
 """)
 
 def main(args):
+    VERBOSE_MODE = False
+    if VERBOSE_CMD in args:
+        VERBOSE_MODE = True
+        args.remove(VERBOSE_CMD)
+
     if len(args) < 2:
         print("prompt missing!")
         exit(1)
     
     load_dotenv()
 
-    handle_prompt(args[1])
+    prompt = args[1]
+    resp = get_resp(prompt)
+    print(resp.text)
+
+    if VERBOSE_MODE:
+        print_verbose(prompt=prompt, resp=resp)
 
 
 if __name__ == "__main__":
