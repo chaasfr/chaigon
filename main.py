@@ -4,6 +4,7 @@ from google import genai
 import sys
 from google.genai import types
 from functions.config import SYSTEM_PROMPT
+from functions.schemas import available_functions
 
 VERBOSE_CMD = "--verbose"
 
@@ -18,7 +19,9 @@ def get_resp(prompt):
     resp = client.models.generate_content(
         model="gemini-2.0-flash-001"
         , contents=messages
-        , config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT)
+        , config=types.GenerateContentConfig(
+            tools=[available_functions], system_instruction=SYSTEM_PROMPT
+            )
         )
     
     return resp
@@ -28,6 +31,8 @@ def print_verbose(prompt, resp):
 User prompt: {prompt}
 Prompt tokens: {resp.usage_metadata.prompt_token_count}
 Response tokens: {resp.usage_metadata.candidates_token_count}
+System prompt: {SYSTEM_PROMPT}
+Config: {resp.model_config}
 """)
 
 def main(args):
@@ -45,6 +50,10 @@ def main(args):
     prompt = args[1]
     resp = get_resp(prompt)
     print(resp.text)
+    if resp.function_calls:
+        print('function calls:')
+        for fc in resp.function_calls:
+            print(f"Calling function: {fc.name}({fc.args})")
 
     if VERBOSE_MODE:
         print_verbose(prompt=prompt, resp=resp)
