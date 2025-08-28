@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from google import genai
 import sys
 from google.genai import types
+from functions.config import SYSTEM_PROMPT
 
 VERBOSE_CMD = "--verbose"
 
@@ -15,8 +16,10 @@ def get_resp(prompt):
     ]
 
     resp = client.models.generate_content(
-        model="gemini-2.0-flash-001",
-        contents=messages)
+        model="gemini-2.0-flash-001"
+        , contents=messages
+        , config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT)
+        )
     
     return resp
 
