@@ -5,6 +5,7 @@ import sys
 from google.genai import types
 from functions.prompts import SYSTEM_PROMPT
 from functions.schemas import available_functions
+from functions.call_functions import call_function
 
 VERBOSE_CMD = "--verbose"
 
@@ -31,9 +32,18 @@ def print_verbose(prompt, resp):
 User prompt: {prompt}
 Prompt tokens: {resp.usage_metadata.prompt_token_count}
 Response tokens: {resp.usage_metadata.candidates_token_count}
-System prompt: {SYSTEM_PROMPT}
-Config: {resp.model_config}
 """)
+    
+
+def call_functions(function_calls, verbose=False):
+    print('function calls:')
+    for fc in function_calls:
+        f_result = call_function(fc)
+        if not f_result.parts or not f_result.parts[0].function_response or not f_result.parts[0].function_response.response:
+            raise Exception('fatal: missing response fro, function call')
+        elif verbose:
+            print(f"-> {f_result.parts[0].function_response.response}")
+
 
 def main(args):
     VERBOSE_MODE = False
@@ -51,9 +61,9 @@ def main(args):
     resp = get_resp(prompt)
     print(resp.text)
     if resp.function_calls:
-        print('function calls:')
-        for fc in resp.function_calls:
-            print(f"Calling function: {fc.name}({fc.args})")
+        call_functions(resp.function_calls, VERBOSE_MODE)
+        
+
 
     if VERBOSE_MODE:
         print_verbose(prompt=prompt, resp=resp)

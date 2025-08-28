@@ -30,19 +30,24 @@ schema_get_file_content = types.FunctionDeclaration(
 
 schema_run_python_file = types.FunctionDeclaration(
     name="run_python_file",
-    description="Runs a python file with the given args, and returns the output, the stout and the stderr. Limited to files within the working directory.",
+    description="Executes a Python file within the working directory and returns the output from the interpreter.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
             "file_path": types.Schema(
                 type=types.Type.STRING,
-                description="The path to the python  we want to execute, relative to the working directory. Mandatory. If the file is not a python file, it will fail.",
+                description="Path to the Python file to execute, relative to the working directory.",
             ),
             "args": types.Schema(
-                type=types.Type.STRING,
-                description="Arguments we want to pass to the python file being executed. Optionnal.",
+                type=types.Type.ARRAY,
+                items=types.Schema(
+                    type=types.Type.STRING,
+                    description="Optional arguments to pass to the Python file.",
+                ),
+                description="Optional arguments to pass to the Python file.",
             ),
         },
+        required=["file_path"],
     ),
 )
 

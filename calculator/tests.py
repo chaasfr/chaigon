@@ -1,6 +1,7 @@
 # tests.py
 
 import unittest
+import sys
 from pkg.calculator import Calculator
 
 
@@ -46,4 +47,4 @@ class TestCalculator(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(testRunner=unittest.TextTestRunner(stream=sys.stdout))

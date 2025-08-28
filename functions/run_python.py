@@ -20,12 +20,13 @@ def run_python_file(working_directory, file_path, args=[]) -> str:
 
   try:
     
-    completed_process = subprocess.run(['python', file_full_path] + args
-                   , timeout=30
-                   , capture_output = True
-                   , text = True
-                   , cwd = working_directory
-                   )
+    completed_process = subprocess.run(
+      ['python', file_full_path] + args
+      , timeout=30
+      , capture_output = True
+      , text = True
+      , cwd = working_directory
+      )
   
 
     result = ''
@@ -33,7 +34,7 @@ def run_python_file(working_directory, file_path, args=[]) -> str:
       result += "No output produced"
     else: 
       result += f'STDOUT: \n{completed_process.stdout}'
-      result += f'\nSTDERR: \n{completed_process.stdout}'
+      result += f'\nSTDERR: \n{completed_process.stderr}'
 
     if completed_process.returncode != 0:
       result += f'\nProcess exited with code {completed_process.returncode}'
