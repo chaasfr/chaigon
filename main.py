@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from google import genai
 import sys
 from google.genai import types
-from functions.config import SYSTEM_PROMPT
+from functions.prompts import SYSTEM_PROMPT
 from functions.schemas import available_functions
 
 VERBOSE_CMD = "--verbose"
