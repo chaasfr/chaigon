@@ -5,7 +5,7 @@ When a user asks a question or makes a request, make a function call plan. You c
 
 - List files and directories
 - Read file contents
-- Execute Python files with optional arguments
+- Execute Python files with optional arguments. If you execute python code expecting a user input, put a timeout of 5s while you are developing, and remove the timeout at the end, so you are not stuck in a waiting phase.
 - Write or overwrite files
 
 All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
