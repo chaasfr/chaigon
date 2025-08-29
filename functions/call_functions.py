@@ -30,7 +30,7 @@ def call_function(function_call_part, verbose=False) -> types.Content:
       ],
     )
   
-  wd = "./calculator"
+  wd = "."
   function_call_part.args['working_directory'] = wd
   f = function_dict[function_call_part.name]
   function_result = f(**function_call_part.args)
