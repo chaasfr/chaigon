@@ -9,7 +9,10 @@ def safe_eval(expression):
     }
 
     def tokenize(expression):
-        tokens = expression.replace('(', '(').replace(')', ')').split()
+        # Insert spaces around parentheses and operators
+        expression = expression.replace('(', ' ( ').replace(')', ' ) ')
+        expression = expression.replace('+', ' + ').replace('-', ' - ').replace('*', ' * ').replace('/', ' / ')
+        tokens = expression.split()
         filtered_tokens = []
         for token in tokens:
             if token:
@@ -38,10 +41,10 @@ def safe_eval(expression):
                 val1 = values.pop()
                 values.append(ops[op][1](val1, val2))
             operators.append(token)
-        elif token == '(':
+        elif token == '(':            
             operators.append(token)
         elif token == ')':
-            while operators and operators[-1] != '(':
+            while operators and operators[-1] != '(':                
                 op = operators.pop()
                 if not values:
                     raise ValueError("Invalid Expression: Not enough values")
@@ -55,10 +58,13 @@ def safe_eval(expression):
             else:
                 raise ValueError("Unmatched parenthesis")
         else:
+            print(f'token={token}')
+            print(f'tokens={tokens}')
+            print(f'expression={expression}')
             raise ValueError("Invalid token: {}".format(token))
 
     while operators:
-        if operators[-1] == '(':
+        if operators[-1] == '(':            
             raise ValueError("Unmatched parenthesis")
         op = operators.pop()
         if not values:
@@ -72,4 +78,6 @@ def safe_eval(expression):
     if len(values) != 1:
         raise ValueError("Invalid expression")
 
-    return values[0]
+    result = values[0]
+    print(f'safe_eval result: {result}') # Print the result before returning
+    return result

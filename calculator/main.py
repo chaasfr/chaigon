@@ -1,5 +1,5 @@
 import tkinter as tk
-from calculator.safe_eval import safe_eval
+from safe_eval import safe_eval
 
 class Calculator:
     def __init__(self, master):
@@ -49,8 +49,10 @@ class Calculator:
         self.equals = tk.Button(self.buttons_frame, text = "=", fg = "black", width = 10, height = 3, bd = 0, bg = "#eee", cursor = "hand2", command = lambda: self.equalpress()).grid(row = 4, column = 3, padx = 1, pady = 1)
 
     def press(self, num):
-        self.expression += str(num)
-        self.input_text.set(self.expression)
+        allowed_chars = "0123456789+-*/.()"
+        if num in allowed_chars:
+            self.expression += str(num)
+            self.input_text.set(self.expression)
 
     def explode(self):
         # Placeholder for explosion animation logic
@@ -59,6 +61,7 @@ class Calculator:
 
     def equalpress(self):
         try:
+            print(f'Evaluating expression: {self.expression}')
             self.explode()  # Call the explode function *before* displaying result
             total = str(safe_eval(self.expression))
             self.input_text.set(total)
