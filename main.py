@@ -8,15 +8,8 @@ from functions.schemas import available_functions
 from functions.call_functions import call_function
 
 VERBOSE_CMD = "--verbose"
-
-def get_resp(prompt):  
-    api_key= os.environ.get("GEMINI_API_KEY")
-    client = genai.Client(api_key=api_key)
-
-    messages = [
-        types.Content(role="user",parts=[types.Part(text=prompt)])
-    ]
-
+messages = []
+def get_resp(client):  
     resp = client.models.generate_content(
         model="gemini-2.0-flash-001"
         , contents=messages
@@ -25,6 +18,11 @@ def get_resp(prompt):
             )
         )
     
+    if resp.candidates:
+        for candidate in resp.candidates:
+            if candidate.content:
+                messages.append(candidate.content)
+
     return resp
 
 def print_verbose(prompt, resp):
@@ -36,13 +34,16 @@ Response tokens: {resp.usage_metadata.candidates_token_count}
     
 
 def call_functions(function_calls, verbose=False):
-    print('function calls:')
     for fc in function_calls:
         f_result = call_function(fc)
         if not f_result.parts or not f_result.parts[0].function_response or not f_result.parts[0].function_response.response:
-            raise Exception('fatal: missing response fro, function call')
-        elif verbose:
-            print(f"-> {f_result.parts[0].function_response.response}")
+            raise Exception('fatal: missing response from function call')
+        else:
+            if verbose:
+                print(f"-> {f_result.parts[0].function_response.response}")
+            messages.append(
+                types.Content(role="user",parts=[types.Part(text=f_result.parts[0].function_response.response['result'])])
+            )
 
 
 def main(args):
@@ -56,18 +57,28 @@ def main(args):
         exit(1)
     
     load_dotenv()
-
+    api_key= os.environ.get("GEMINI_API_KEY")
+    client = genai.Client(api_key=api_key)
     prompt = args[1]
-    resp = get_resp(prompt)
-    print(resp.text)
-    if resp.function_calls:
-        call_functions(resp.function_calls, VERBOSE_MODE)
-        
+    messages.append(
+        types.Content(role="user",parts=[types.Part(text=prompt)])
+    )
 
-
-    if VERBOSE_MODE:
-        print_verbose(prompt=prompt, resp=resp)
-
+    max_iter = 20
+    current_iter = 1
+    while current_iter < max_iter:
+        current_iter +=1
+        try:
+            resp = get_resp(client)
+            if resp.function_calls:
+                call_functions(resp.function_calls, VERBOSE_MODE)
+            else:
+                print(resp.text)
+                break
+            if VERBOSE_MODE:
+                print_verbose(prompt=prompt, resp=resp)
+        except Exception as e:
+            print(f'Error main loop: {e}')
 
 if __name__ == "__main__":
     main(sys.argv)
